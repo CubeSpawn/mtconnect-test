@@ -1,0 +1,63 @@
+version: '3.8'
+
+services:
+  octoprint:
+    build:
+      context: ./docker/octoprint
+      dockerfile: Dockerfile
+    ports:
+      - "5000:5000"
+    volumes:
+      - octoprint_data:/data
+      - ./src/octoprint_mtconnect:/plugin
+      - ./logs/octoprint:/var/log/octoprint
+    environment:
+      - ENABLE_VIRTUAL_PRINTER=true
+      - PYTHONPATH=/plugin
+    networks:
+      mtconnect_net:
+        aliases:
+          - octoprint.local
+    restart: unless-stopped
+
+  trakhound:
+    build:
+      context: ./docker/trakhound
+      dockerfile: Dockerfile
+    ports:
+      - "7878:7878"
+    volumes:
+      - trakhound_data:/data
+      - ./logs/trakhound:/var/log/trakhound
+    depends_on:
+      - octoprint
+    networks:
+      mtconnect_net:
+        aliases:
+          - trakhound.local
+    restart: unless-stopped
+
+  dev-tools:
+    build:
+      context: ./docker/dev-tools
+      dockerfile: Dockerfile
+    volumes:
+      - .:/workspace
+      - ~/.gitconfig:/root/.gitconfig
+      - ~/.ssh:/root/.ssh
+    ports:
+      - "3000:3000"
+    environment:
+      - OCTOPRINT_HOST=octoprint.local
+      - TRAKHOUND_HOST=trakhound.local
+    networks:
+      - mtconnect_net
+    restart: unless-stopped
+
+networks:
+  mtconnect_net:
+    driver: bridge
+
+volumes:
+  octoprint_data:
+  trakhound_data:
