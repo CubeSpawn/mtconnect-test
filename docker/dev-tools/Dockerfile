@@ -14,7 +14,7 @@ RUN apt-get update && apt-get install -y \
     vim \
     htop \
     tcpdump \
-    wireshark-cli \
+    tshark \
     && rm -rf /var/lib/apt/lists/*
 
 # Install VSCode Server

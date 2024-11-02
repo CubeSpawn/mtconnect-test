@@ -18,24 +18,26 @@ services:
       mtconnect_net:
         aliases:
           - octoprint.local
-    restart: unless-stopped
-
-  trakhound:
-    build:
-      context: ./docker/trakhound
-      dockerfile: Dockerfile
+          
+  nodered:
+    image: nodered/node-red:latest
+    user: "0"
     ports:
+      - "1880:1880"
       - "7878:7878"
     volumes:
-      - trakhound_data:/data
-      - ./logs/trakhound:/var/log/trakhound
-    depends_on:
-      - octoprint
+      - nodered_data:/data
+      - ./src/nodered:/data/nodes
+      - ./docker/nodered/install-packages.sh:/data/install-packages.sh
+    environment:
+      - TZ=UTC
     networks:
       mtconnect_net:
         aliases:
-          - trakhound.local
-    restart: unless-stopped
+          - nodered.local
+    command: >
+      sh -c "/data/install-packages.sh && 
+             npm start -- --userDir /data"
 
   dev-tools:
     build:
@@ -49,10 +51,9 @@ services:
       - "3000:3000"
     environment:
       - OCTOPRINT_HOST=octoprint.local
-      - TRAKHOUND_HOST=trakhound.local
+      - NODERED_HOST=nodered.local
     networks:
       - mtconnect_net
-    restart: unless-stopped
 
 networks:
   mtconnect_net:
@@ -60,4 +61,4 @@ networks:
 
 volumes:
   octoprint_data:
-  trakhound_data:
+  nodered_data:
