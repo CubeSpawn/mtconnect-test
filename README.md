@@ -24,23 +24,6 @@ docker-compose up -d
 OctoPrint: http://localhost:5000
 TrakHound: http://localhost:7878
 
-Project Structure
-
-mtconnect-test/
-├── docker/
-│   ├── octoprint/
-│   │   └── Dockerfile
-│   └── trakhound/
-│       └── Dockerfile
-├── src/
-│   ├── octoprint_mtconnect/
-│   │   └── __init__.py
-│   └── trakhound/
-├── logs/
-│   ├── octoprint/
-│   └── trakhound/
-└── docker-compose.yml
-
 Development
 This environment provides:
 
