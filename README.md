@@ -11,7 +11,7 @@ A testing environment for MTConnect integration with OctoPrint, part of the Cube
 
 ## Quick Start
 1. Clone the repository:
-```bash
+
 git clone https://github.com/CubeSpawn/mtconnect-test.git
 cd mtconnect-test
 
