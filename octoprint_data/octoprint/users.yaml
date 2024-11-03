@@ -1,0 +1,13 @@
+CubeSpawn:
+  active: true
+  apikey: null
+  groups:
+  - admins
+  - users
+  password: $argon2id$v=19$m=65536,t=3,p=4$o9Q6R0iJca4Vwlir9f4/Rw$SBuf0HrI8D/rITJ3ChECnrhB6kjBQPkNWjsP43uNfng
+  permissions: []
+  roles:
+  - user
+  - admin
+  settings: {}
+_version: 2

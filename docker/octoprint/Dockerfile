@@ -5,6 +5,7 @@ RUN apt-get update && apt-get install -y \
     python3-dev \
     build-essential \
     git \
+    curl \
     && rm -rf /var/lib/apt/lists/*
 
 # Install development tools
@@ -14,13 +15,10 @@ RUN pip install \
     black \
     flake8
 
-# Set up plugin development directory
-WORKDIR /plugin
-
-# Copy plugin requirements (we'll create this file next)
+# Copy plugin requirements and install
 COPY requirements.txt /plugin/requirements.txt
-RUN pip install -r requirements.txt
+RUN pip install -r /plugin/requirements.txt
 
 # Health check
-HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
+HEALTHCHECK --interval=30s --timeout=60s --start-period=120s --retries=5 \
     CMD curl -f http://localhost:5000/ || exit 1

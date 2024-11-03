@@ -1,0 +1,6 @@
+/:
+- _count: 11
+  _timestamp: 1730597456.0273602
+  base_url: http://localhost:5000/
+  path: /
+  query_string: l10n=en

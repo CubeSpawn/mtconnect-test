@@ -1,5 +1,29 @@
 version: '3.8'
 
+# Define networks first
+networks:
+  mtconnect_net:
+    name: mtconnect_net
+    driver: bridge
+
+# Define volumes
+volumes:
+  octoprint_data:
+    name: octoprint_data
+    driver: local
+    driver_opts:
+      type: none
+      device: ${PWD}/octoprint_data
+      o: bind
+  nodered_data:
+    name: nodered_data
+    driver: local
+    driver_opts:
+      type: none
+      device: ${PWD}/nodered_data
+      o: bind
+
+# Then define services
 services:
   octoprint:
     build:
@@ -8,17 +32,22 @@ services:
     ports:
       - "5000:5000"
     volumes:
-      - octoprint_data:/data
-      - ./src/octoprint_mtconnect:/plugin
-      - ./logs/octoprint:/var/log/octoprint
+      - type: volume
+        source: octoprint_data
+        target: /octoprint
+      - type: bind
+        source: ./src/octoprint_mtconnect
+        target: /plugin
+      - type: bind
+        source: ./logs/octoprint
+        target: /var/log/octoprint
     environment:
       - ENABLE_VIRTUAL_PRINTER=true
       - PYTHONPATH=/plugin
+      - OCTOPRINT_BASEDIR=/octoprint
     networks:
-      mtconnect_net:
-        aliases:
-          - octoprint.local
-          
+      - mtconnect_net
+
   nodered:
     image: nodered/node-red:latest
     user: "0"
@@ -26,39 +55,42 @@ services:
       - "1880:1880"
       - "7878:7878"
     volumes:
-      - nodered_data:/data
-      - ./src/nodered:/data/nodes
-      - ./docker/nodered/install-packages.sh:/data/install-packages.sh
+      - type: bind
+        source: ${PWD}/nodered_data
+        target: /data
+      - type: bind
+        source: ./src/nodered/flows
+        target: /data/flows
+      - type: bind
+        source: ./docker/nodered/install-packages.sh
+        target: /data/install-packages.sh
     environment:
       - TZ=UTC
+      - NODE_RED_NPM_CMD=npm install /data/nodes/mtconnect
+      - FLOWS=/data/flows/mtconnect_adapter.json
     networks:
-      mtconnect_net:
-        aliases:
-          - nodered.local
+      - mtconnect_net
     command: >
-      sh -c "/data/install-packages.sh && 
-             npm start -- --userDir /data"
+      sh -c "/data/install-packages.sh && npm start -- --userDir /data"
 
   dev-tools:
     build:
       context: ./docker/dev-tools
       dockerfile: Dockerfile
-    volumes:
-      - .:/workspace
-      - ~/.gitconfig:/root/.gitconfig
-      - ~/.ssh:/root/.ssh
     ports:
       - "3000:3000"
+    volumes:
+      - type: bind
+        source: .
+        target: /workspace
+      - type: bind
+        source: ~/.gitconfig
+        target: /root/.gitconfig
+      - type: bind
+        source: ~/.ssh
+        target: /root/.ssh
     environment:
       - OCTOPRINT_HOST=octoprint.local
       - NODERED_HOST=nodered.local
     networks:
       - mtconnect_net
-
-networks:
-  mtconnect_net:
-    driver: bridge
-
-volumes:
-  octoprint_data:
-  nodered_data:

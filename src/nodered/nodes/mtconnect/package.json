@@ -1,0 +1,15 @@
+{
+    "name": "node-red-contrib-mtconnect-cubespawn",
+    "version": "0.1.0",
+    "description": "MTConnect nodes for CubeSpawn integration",
+    "keywords": [ "node-red", "mtconnect", "cubespawn" ],
+    "node-red": {
+        "nodes": {
+            "mtconnect": "mtconnect.js"
+        }
+    },
+    "dependencies": {
+        "axios": "^1.6.0",
+        "xml2js": "^0.6.2"
+    }
+}

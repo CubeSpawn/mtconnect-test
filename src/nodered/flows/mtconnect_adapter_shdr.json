@@ -1,0 +1,129 @@
+[
+    {
+        "id": "mtconnect-adapter",
+        "type": "tab",
+        "label": "MTConnect Adapter",
+        "disabled": false,
+        "info": "Flow for OctoPrint to MTConnect data transformation"
+    },
+    {
+        "id": "octoprint-poll",
+        "type": "inject",
+        "z": "mtconnect-adapter",
+        "name": "Poll Timer",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "1",
+        "crontab": "",
+        "once": true,
+        "onceDelay": "0.1",
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 110,
+        "y": 120,
+        "wires": [
+            [
+                "fetch-printer-state"
+            ]
+        ]
+    },
+    {
+        "id": "fetch-printer-state",
+        "type": "http request",
+        "z": "mtconnect-adapter",
+        "name": "Get Printer State",
+        "method": "GET",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "http://octoprint:5000/api/printer",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "bearer",
+        "senderr": false,
+        "headers": [],
+        "x": 310,
+        "y": 120,
+        "wires": [
+            [
+                "transform-mtconnect"
+            ]
+        ]
+    },
+    {
+        "id": "transform-mtconnect",
+        "type": "function",
+        "z": "mtconnect-adapter",
+        "name": "Transform to MTConnect",
+        "func": "const timestamp = new Date().toISOString();\n\nconst temp = msg.payload.temperature;\nconst state = msg.payload.state;\n\n// Create MTConnect SHDR format\nlet mtconnectData = {\n    timestamp: timestamp,\n    samples: [\n        {\n            dataItemId: 'temp_bed',\n            value: temp.bed.actual\n        },\n        {\n            dataItemId: 'temp_bed_target',\n            value: temp.bed.target\n        },\n        {\n            dataItemId: 'temp_tool0',\n            value: temp.tool0.actual\n        },\n        {\n            dataItemId: 'temp_tool0_target',\n            value: temp.tool0.target\n        }\n    ],\n    events: [\n        {\n            dataItemId: 'state',\n            value: state.text.toUpperCase()\n        },\n        {\n            dataItemId: 'execution',\n            value: state.flags.printing ? 'ACTIVE' : 'READY'\n        }\n    ]\n};\n\nmsg.payload = mtconnectData;\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 530,
+        "y": 120,
+        "wires": [
+            [
+                "format-shdr",
+                "store-current-state"
+            ]
+        ]
+    },
+    {
+        "id": "format-shdr",
+        "type": "function",
+        "z": "mtconnect-adapter",
+        "name": "Format SHDR",
+        "func": "// Convert to SHDR pipe-delimited format\nconst data = msg.payload;\nlet shdr = [];\n\n// Add samples\ndata.samples.forEach(sample => {\n    shdr.push(`${data.timestamp}|${sample.dataItemId}|${sample.value}`);\n});\n\n// Add events\ndata.events.forEach(event => {\n    shdr.push(`${data.timestamp}|${event.dataItemId}|${event.value}`);\n});\n\nmsg.payload = shdr.join('\\n');\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 730,
+        "y": 120,
+        "wires": [
+            [
+                "mtconnect-server"
+            ]
+        ]
+    },
+    {
+        "id": "mtconnect-server",
+        "type": "tcp out",
+        "z": "mtconnect-adapter",
+        "host": "0.0.0.0",
+        "port": "7878",
+        "beserver": "server",
+        "base64": false,
+        "end": false,
+        "name": "MTConnect Server",
+        "x": 930,
+        "y": 120,
+        "wires": []
+    },
+    {
+        "id": "store-current-state",
+        "type": "file",
+        "z": "mtconnect-adapter",
+        "name": "Save Current State",
+        "filename": "/data/current_state.json",
+        "appendNewline": true,
+        "createDir": true,
+        "overwriteFile": "true",
+        "encoding": "none",
+        "x": 730,
+        "y": 180,
+        "wires": [
+            []
+        ]
+    }
+]
