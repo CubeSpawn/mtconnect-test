@@ -5,6 +5,17 @@ api:
 plugins:
   announcements:
     _config_version: 1
+    channels:
+      _blog:
+        read_until: 1727792400
+      _important:
+        read_until: 1698310200
+      _octopi:
+        read_until: 1684929600
+      _plugins:
+        read_until: 1728345600
+      _releases:
+        read_until: 1718697600
   classicwebcam:
     _config_version: 1
     snapshot: http://localhost:8080/?action=snapshot
@@ -25,6 +36,10 @@ plugins:
     enabled: true
 printerProfiles:
   default: _default
+serial:
+  autoconnect: true
+  baudrate: 0
+  port: AUTO
 server:
   commands:
     serverRestartCommand: s6-svc -r /var/run/s6/services/octoprint

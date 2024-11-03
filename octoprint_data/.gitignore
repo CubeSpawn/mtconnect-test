@@ -1,0 +1,12 @@
+logs/
+*.log
+config.yaml
+users.yaml
+*.bak
+.octoprint/
+uploads/
+timelapse/
+generated/
+plugins/
+data/
+virtualSd/

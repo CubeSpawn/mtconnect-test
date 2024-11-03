@@ -1,7 +1,6 @@
+Machine/
+User/
+extensions/
 logs/
-*.pyc
-__pycache__/
-.vscode/
-*.egg-info/
-build/
-dist/
+coder.json
+*.log

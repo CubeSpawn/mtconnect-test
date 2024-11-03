@@ -1,0 +1,8 @@
+.config.json
+.config.json.backup
+.flows.json.backup
+flows_cred.json
+package-lock.json
+.npm/
+node_modules/
+*.backup
