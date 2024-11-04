@@ -1,0 +1,61 @@
+{
+    "id": "mtconnect-test-flow",
+    "label": "MTConnect Test",
+    "nodes": [
+        {
+            "id": "healthcheck",
+            "type": "inject",
+            "z": "mtconnect-test-flow",
+            "name": "Health Check",
+            "props": [
+                {
+                    "p": "payload"
+                }
+            ],
+            "repeat": "30",
+            "crontab": "",
+            "once": true,
+            "onceDelay": "1",
+            "topic": "",
+            "payload": "",
+            "payloadType": "date",
+            "x": 130,
+            "y": 120,
+            "wires": [["octoprint-probe"]]
+        },
+        {
+            "id": "octoprint-probe",
+            "type": "http request",
+            "z": "mtconnect-test-flow",
+            "name": "OctoPrint MTConnect Probe",
+            "method": "GET",
+            "ret": "txt",
+            "paytoqs": "ignore",
+            "url": "http://octoprint:5000/plugin/mtconnect/probe",
+            "tls": "",
+            "persist": false,
+            "proxy": "",
+            "authType": "",
+            "x": 350,
+            "y": 120,
+            "wires": [["debug-probe"]]
+        },
+        {
+            "id": "debug-probe",
+            "type": "debug",
+            "z": "mtconnect-test-flow",
+            "name": "Debug Probe Response",
+            "active": true,
+            "tosidebar": true,
+            "console": false,
+            "tostatus": false,
+            "complete": "payload",
+            "targetType": "msg",
+            "statusVal": "",
+            "statusType": "auto",
+            "x": 580,
+            "y": 120,
+            "wires": []
+        }
+    ]
+}

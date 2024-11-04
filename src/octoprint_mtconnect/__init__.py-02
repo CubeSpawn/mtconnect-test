@@ -1,0 +1,195 @@
+#__init__.py
+
+import octoprint.plugin
+from flask import jsonify, make_response, request
+import logging
+from octoprint.server.util.flask import no_firstrun_access
+import time
+import dicttoxml
+from xml.dom.minidom import parseString
+
+class MtconnectPlugin(octoprint.plugin.StartupPlugin,
+                     octoprint.plugin.SettingsPlugin,
+                     octoprint.plugin.AssetPlugin,
+                     octoprint.plugin.BlueprintPlugin):
+    
+    def __init__(self):
+        self._logger = logging.getLogger("octoprint.plugins.mtconnect")
+        self._sequence = 0
+        self._start_time = time.time()
+
+    def format_response(self, data, want_xml=False):
+        """Helper to format response in XML or JSON"""
+        if want_xml:
+            xml = dicttoxml.dicttoxml(data, custom_root='MTConnectStreams', attr_type=False)
+            dom = parseString(xml)
+            response = make_response(dom.toprettyxml(indent="  "))
+            response.headers['Content-Type'] = 'application/xml'
+            return response
+        else:
+            return jsonify(data)
+
+    @octoprint.plugin.BlueprintPlugin.route("/current", methods=["GET"])
+    @no_firstrun_access
+    def handle_current(self):
+        try:
+            printer_data = self._printer.get_current_data()
+            temps = self._printer.get_current_temperatures()
+            job_data = printer_data.get("progress", {})
+            position = printer_data.get("currentZ", 0)
+            
+            # Increment sequence number
+            self._sequence += 1
+            
+            timestamp = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
+            
+            current_data = {
+                "MTConnectStreams": {
+                    "Header": {
+                        "instanceId": "1",
+                        "version": "1.7.0",
+                        "sender": "OctoPrint MTConnect Adapter",
+                        "creationTime": timestamp,
+                        "nextSequence": str(self._sequence + 1),
+                        "firstSequence": "1",
+                        "lastSequence": str(self._sequence)
+                    },
+                    "Streams": [{
+                        "DeviceStream": {
+                            "uuid": self._settings.get(["uuid"]),
+                            "name": self._settings.get(["device_name"]),
+                            "ComponentStreams": {
+                                "ComponentStream": [
+                                    {
+                                        "component": "Head",
+                                        "componentId": "print_head",
+                                        "Samples": {
+                                            "Sample": [
+                                                {
+                                                    "name": "nozzle_temperature",
+                                                    "timestamp": timestamp,
+                                                    "sequence": str(self._sequence),
+                                                    "value": str(temps.get("tool0", {}).get("actual", 0))
+                                                },
+                                                {
+                                                    "name": "z_position",
+                                                    "timestamp": timestamp,
+                                                    "sequence": str(self._sequence),
+                                                    "value": str(position)
+                                                }
+                                            ]
+                                        }
+                                    },
+                                    {
+                                        "component": "Table",
+                                        "componentId": "build_plate",
+                                        "Samples": {
+                                            "Sample": [
+                                                {
+                                                    "name": "bed_temperature",
+                                                    "timestamp": timestamp,
+                                                    "sequence": str(self._sequence),
+                                                    "value": str(temps.get("bed", {}).get("actual", 0))
+                                                }
+                                            ]
+                                        }
+                                    }
+                                ]
+                            },
+                            "Events": {
+                                "Event": [
+                                    {
+                                        "name": "availability",
+                                        "timestamp": timestamp,
+                                        "sequence": str(self._sequence),
+                                        "value": "AVAILABLE" if self._printer.is_operational() else "UNAVAILABLE"
+                                    },
+                                    {
+                                        "name": "system_status",
+                                        "timestamp": timestamp,
+                                        "sequence": str(self._sequence),
+                                        "value": self.map_printer_state(printer_data.get("state", {}).get("text", "UNKNOWN"))
+                                    },
+                                    {
+                                        "name": "execution",
+                                        "timestamp": timestamp,
+                                        "sequence": str(self._sequence),
+                                        "value": "ACTIVE" if self._printer.is_printing() else "READY"
+                                    }
+                                ]
+                            },
+                            "Samples": {
+                                "Sample": [
+                                    {
+                                        "name": "percent_complete",
+                                        "timestamp": timestamp,
+                                        "sequence": str(self._sequence),
+                                        "value": "{:.1f}".format(job_data.get("completion", 0))
+                                    },
+                                    {
+                                        "name": "process_time",
+                                        "timestamp": timestamp,
+                                        "sequence": str(self._sequence),
+                                        "value": str(int(job_data.get("printTime", 0)))
+                                    }
+                                ]
+                            }
+                        }
+                    }]
+                }
+            }
+            
+            # Check if client wants XML
+            want_xml = request.headers.get('Accept', '').find('application/xml') >= 0 or \
+                      request.args.get('format', '').lower() == 'xml'
+            
+            return self.format_response(current_data, want_xml)
+            
+        except Exception as e:
+            self._logger.error("Error handling current request: %s", str(e))
+            return make_response(jsonify({"error": str(e)}), 500)
+
+    def map_printer_state(self, state):
+        """Map OctoPrint states to MTConnect states"""
+        state_map = {
+            "Operational": "READY",
+            "Printing": "ACTIVE",
+            "Cancelling": "INTERRUPTED",
+            "Paused": "INTERRUPTED",
+            "Pausing": "INTERRUPTED",
+            "Error": "FAULT",
+            "Offline": "UNAVAILABLE",
+            "Starting": "READY",
+            "Connecting": "READY"
+        }
+        return state_map.get(state, "UNKNOWN")
+
+    def is_blueprint_protected(self):
+        return False
+
+    def get_settings_defaults(self):
+        return dict(
+            uuid="OCTO001",
+            device_name="OctoPrint Device",
+            manufacturer="CubeSpawn",
+            serialNumber="001",
+            station="3D-PRINTER-01"
+        )
+
+# ... rest of the plugin code remains the same ...
+
+__plugin_name__ = "MTConnect"
+__plugin_version__ = "0.1.0"
+__plugin_description__ = "MTConnect adapter for OctoPrint"
+__plugin_author__ = "CubeSpawn"
+__plugin_license__ = "AGPLv3"
+__plugin_pythoncompat__ = ">=3.7,<4"
+
+def __plugin_load__():
+    global __plugin_implementation__
+    __plugin_implementation__ = MtconnectPlugin()
+
+    global __plugin_hooks__
+    __plugin_hooks__ = {
+        "octoprint.plugin.softwareupdate.check_config": __plugin_implementation__.get_update_information
+    }

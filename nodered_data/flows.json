@@ -1,0 +1,157 @@
+[
+    {
+        "id": "mtconnect-flow",
+        "type": "tab",
+        "label": "MTConnect Test",
+        "disabled": false,
+        "info": "Test flow for MTConnect integration with OctoPrint"
+    },
+    {
+        "id": "63adf71d8d613690",
+        "type": "tab",
+        "label": "Flow 1",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "dc0a3b7d26e1492d",
+        "type": "inject",
+        "z": "mtconnect-flow",
+        "name": "Poll Timer",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "5",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 130,
+        "y": 120,
+        "wires": [
+            [
+                "68a4ad97125a61cc"
+            ]
+        ]
+    },
+    {
+        "id": "68a4ad97125a61cc",
+        "type": "http request",
+        "z": "mtconnect-flow",
+        "name": "MTConnect Request",
+        "method": "GET",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "http://octoprint:5000/plugin/mtconnect/current",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 340,
+        "y": 120,
+        "wires": [
+            [
+                "57addc1e8c350a7a"
+            ]
+        ]
+    },
+    {
+        "id": "05930fcc8329894b",
+        "type": "debug",
+        "z": "mtconnect-flow",
+        "name": "Debug Output",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 720,
+        "y": 120,
+        "wires": []
+    },
+    {
+        "id": "5d7283f12e50f524",
+        "type": "ui_text",
+        "z": "mtconnect-flow",
+        "group": "",
+        "order": 0,
+        "width": "1",
+        "height": "1",
+        "name": "MTConnect Data",
+        "label": "text",
+        "format": "{{JSON.stringify(msg.payload, null, 2)}}",
+        "layout": "row-center",
+        "className": "",
+        "style": false,
+        "font": "",
+        "fontSize": 16,
+        "color": "#000000",
+        "x": 170,
+        "y": 420,
+        "wires": []
+    },
+    {
+        "id": "57addc1e8c350a7a",
+        "type": "function",
+        "z": "mtconnect-flow",
+        "name": "function 1",
+        "func": "const streams = msg.payload.MTConnectStreams;\nconst deviceStream = streams.Streams[0].DeviceStream;\n\n// Extract key values\nmsg.temperature = deviceStream.ComponentStreams.ComponentStream[0]\n    .Samples.Sample[0].value;\n\nmsg.status = deviceStream.Events.Event.map(event => ({\n    name: event.name,\n    value: event.value\n}));\n\nreturn [\n    msg,           // to debug\n    msg.temperature,  // to gauge\n    msg.payload,   // to text\n    msg.status     // to table\n];\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 540,
+        "y": 120,
+        "wires": [
+            [
+                "05930fcc8329894b",
+                "163b4d0104f97371"
+            ]
+        ]
+    },
+    {
+        "id": "163b4d0104f97371",
+        "type": "ui_gauge",
+        "z": "mtconnect-flow",
+        "name": "",
+        "group": "",
+        "order": 0,
+        "width": 0,
+        "height": 0,
+        "gtype": "gage",
+        "title": "C",
+        "label": "units",
+        "format": "Use {{JSON.stringify(msg.payload, null, 2)}}",
+        "min": 0,
+        "max": "300",
+        "colors": [
+            "#00b500",
+            "#e6e600",
+            "#ca3838"
+        ],
+        "seg1": "",
+        "seg2": "",
+        "diff": false,
+        "className": "",
+        "x": 650,
+        "y": 200,
+        "wires": []
+    }
+]

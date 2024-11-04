@@ -1,0 +1,8 @@
+Metadata-Version: 2.1
+Name: OctoPrint-MTConnect
+Version: 0.1.0
+Summary: MTConnect adapter for OctoPrint
+Author: CubeSpawn
+Author-email: your.email@example.com
+License: AGPLv3
+Requires-Python: >=3.7,<4

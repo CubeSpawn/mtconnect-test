@@ -1,0 +1,154 @@
+# __init__.py
+
+import octoprint.plugin
+from flask import jsonify, make_response
+import logging
+from octoprint.server.util.flask import no_firstrun_access, restricted_access
+
+class MtconnectPlugin(octoprint.plugin.StartupPlugin,
+                     octoprint.plugin.SettingsPlugin,
+                     octoprint.plugin.AssetPlugin,
+                     octoprint.plugin.BlueprintPlugin):
+    
+    def __init__(self):
+        self._logger = logging.getLogger("octoprint.plugins.mtconnect")
+
+    ##~~ StartupPlugin mixin
+    def on_after_startup(self):
+        self._logger.info("MTConnect plugin initialized")
+
+    ##~~ SettingsPlugin mixin
+    def get_settings_defaults(self):
+        return dict(
+            poll_interval=1.0,  # Polling interval in seconds
+            device_name="OctoPrint Device",
+            manufacturer="CubeSpawn",
+            serialNumber="001"
+        )
+
+    ##~~ AssetPlugin mixin
+    def get_assets(self):
+        return dict(
+            js=["js/mtconnect.js"],
+            css=["css/mtconnect.css"]
+        )
+
+    ##~~ BlueprintPlugin mixin
+    @octoprint.plugin.BlueprintPlugin.route("/probe", methods=["GET"])
+    @no_firstrun_access
+    def handle_probe(self):
+        try:
+            probe_data = {
+                "MTConnectDevices": {
+                    "Devices": [{
+                        "Device": {
+                            "name": self._settings.get(["device_name"]),
+                            "id": "dev1",
+                            "manufacturer": self._settings.get(["manufacturer"]),
+                            "serialNumber": self._settings.get(["serialNumber"]),
+                            "DataItems": {
+                                "DataItem": [
+                                    {
+                                        "id": "avail",
+                                        "category": "EVENT",
+                                        "type": "AVAILABILITY"
+                                    },
+                                    {
+                                        "id": "temp_nozzle",
+                                        "category": "SAMPLE",
+                                        "type": "TEMPERATURE",
+                                        "name": "nozzle",
+                                        "units": "CELSIUS"
+                                    },
+                                    {
+                                        "id": "temp_bed",
+                                        "category": "SAMPLE",
+                                        "type": "TEMPERATURE",
+                                        "name": "bed",
+                                        "units": "CELSIUS"
+                                    },
+                                    {
+                                        "id": "status",
+                                        "category": "EVENT",
+                                        "type": "SYSTEM"
+                                    }
+                                ]
+                            }
+                        }
+                    }]
+                }
+            }
+            return jsonify(probe_data)
+        except Exception as e:
+            self._logger.error("Error handling probe request: %s", str(e))
+            return make_response(jsonify({"error": str(e)}), 500)
+
+    @octoprint.plugin.BlueprintPlugin.route("/current", methods=["GET"])
+    @no_firstrun_access
+    def handle_current(self):
+        try:
+            printer_data = self._printer.get_current_data()
+            temps = self._printer.get_current_temperatures()
+            
+            current_data = {
+                "MTConnectStreams": {
+                    "Streams": [{
+                        "DeviceStream": {
+                            "name": self._settings.get(["device_name"]),
+                            "DataItems": [{
+                                "DataItem": [
+                                    {
+                                        "id": "avail",
+                                        "name": "availability",
+                                        "value": "AVAILABLE" if self._printer.is_operational() else "UNAVAILABLE"
+                                    },
+                                    {
+                                        "id": "temp_nozzle",
+                                        "name": "nozzle_temperature",
+                                        "value": str(temps.get("tool0", {}).get("actual", 0))
+                                    },
+                                    {
+                                        "id": "temp_bed",
+                                        "name": "bed_temperature",
+                                        "value": str(temps.get("bed", {}).get("actual", 0))
+                                    },
+                                    {
+                                        "id": "status",
+                                        "name": "system_status",
+                                        "value": printer_data.get("state", {}).get("text", "UNKNOWN")
+                                    }
+                                ]
+                            }]
+                        }
+                    }]
+                }
+            }
+            return jsonify(current_data)
+        except Exception as e:
+            self._logger.error("Error handling current request: %s", str(e))
+            return make_response(jsonify({"error": str(e)}), 500)
+
+    def is_blueprint_protected(self):
+        # This makes the endpoints publicly accessible
+        return False
+
+    ##~~ Softwareupdate hook
+    def get_update_information(self):
+        return dict(
+            mtconnect=dict(
+                displayName="MTConnect Plugin",
+                displayVersion=self._plugin_version,
+                type="github_release",
+                user="CubeSpawn",
+                repo="OctoPrint-MTConnect",
+                current=self._plugin_version,
+                pip="https://github.com/CubeSpawn/OctoPrint-MTConnect/archive/{target_version}.zip"
+            )
+        )
+
+__plugin_name__ = "MTConnect"
+__plugin_pythoncompat__ = ">=3.7,<4"
+__plugin_implementation__ = MtconnectPlugin()
+__plugin_hooks__ = {
+    "octoprint.plugin.softwareupdate.check_config": __plugin_implementation__.get_update_information
+}

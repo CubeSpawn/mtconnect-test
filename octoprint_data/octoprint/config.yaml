@@ -38,8 +38,6 @@ printerProfiles:
   default: _default
 serial:
   autoconnect: true
-  baudrate: 0
-  port: AUTO
 server:
   commands:
     serverRestartCommand: s6-svc -r /var/run/s6/services/octoprint

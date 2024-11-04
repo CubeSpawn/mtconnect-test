@@ -44,7 +44,7 @@ services:
         target: /octoprint
       - type: bind
         source: ./src/octoprint_mtconnect
-        target: /octoprint/plugins/octoprint_mtconnect  # Changed this line
+        target: /octoprint/plugins/octoprint_mtconnect
       - type: bind
         source: ./logs/octoprint
         target: /var/log/octoprint
@@ -52,6 +52,8 @@ services:
       - ENABLE_VIRTUAL_PRINTER=true
       - PYTHONPATH=/octoprint/plugins
       - OCTOPRINT_BASEDIR=/octoprint
+      - OCTOPRINT_DEBUG=1
+      - OCTOPRINT_LOGGING_DEBUG=1
 
       
   nodered:
@@ -67,18 +69,16 @@ services:
       - type: bind
         source: ./src/nodered/flows
         target: /data/flows
-      - type: bind
-        source: ./docker/nodered/install-packages.sh
-        target: /data/install-packages.sh
+
     environment:
       - TZ=UTC
-      - NODE_RED_NPM_CMD=npm install /data/nodes/mtconnect
-      - FLOWS=/data/flows/mtconnect_adapter.json
+      - FLOWS=flows.json
+    command: >
+      sh -c "npm install node-red-contrib-mtconnect && npm start -- --userDir /data"
     networks:
       - mtconnect_net
-    command: >
-      sh -c "/data/install-packages.sh && npm start -- --userDir /data"
-
+      
+  
   dev-tools:
     build:
       context: ./docker/dev-tools

@@ -1,0 +1,9 @@
+MANIFEST.in
+setup.py
+OctoPrint_MTConnect.egg-info/PKG-INFO
+OctoPrint_MTConnect.egg-info/SOURCES.txt
+OctoPrint_MTConnect.egg-info/dependency_links.txt
+OctoPrint_MTConnect.egg-info/entry_points.txt
+OctoPrint_MTConnect.egg-info/requires.txt
+OctoPrint_MTConnect.egg-info/top_level.txt
+octoprint_mtconnect/__init__.py

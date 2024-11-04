@@ -1,0 +1,2 @@
+[octoprint.plugin]
+mtconnect = octoprint_mtconnect:MtconnectPlugin

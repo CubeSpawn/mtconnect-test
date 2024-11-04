@@ -1,0 +1,68 @@
+{
+    "id": "test-flow",
+    "label": "MTConnect Test Flow",
+    "nodes": [
+        {
+            "id": "http-in",
+            "type": "http in",
+            "z": "test-flow",
+            "name": "GET /test",
+            "url": "/test",
+            "method": "get",
+            "upload": false,
+            "swaggerDoc": "",
+            "x": 120,
+            "y": 80,
+            "wires": [["http-response"]]
+        },
+        {
+            "id": "http-response",
+            "type": "http response",
+            "z": "test-flow",
+            "name": "Send Response",
+            "statusCode": "",
+            "headers": {},
+            "x": 320,
+            "y": 80,
+            "wires": []
+        },
+        {
+            "id": "inject",
+            "type": "inject",
+            "z": "test-flow",
+            "name": "Heartbeat",
+            "props": [
+                {
+                    "p": "payload"
+                }
+            ],
+            "repeat": "30",
+            "crontab": "",
+            "once": true,
+            "onceDelay": 0.1,
+            "topic": "",
+            "payload": "test",
+            "payloadType": "str",
+            "x": 120,
+            "y": 160,
+            "wires": [["debug"]]
+        },
+        {
+            "id": "debug",
+            "type": "debug",
+            "z": "test-flow",
+            "name": "Debug",
+            "active": true,
+            "tosidebar": true,
+            "console": false,
+            "tostatus": false,
+            "complete": "payload",
+            "targetType": "msg",
+            "statusVal": "",
+            "statusType": "auto",
+            "x": 320,
+            "y": 160,
+            "wires": []
+        }
+    ]
+}

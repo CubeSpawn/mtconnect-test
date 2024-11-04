@@ -2,7 +2,7 @@
   "stats": {
     "last_version": "1.10.2",
     "seen_versions": 1,
-    "server_starts": 11,
+    "server_starts": 62,
     "prints_started": 0,
     "prints_cancelled": 0,
     "prints_errored": 0,
@@ -18,7 +18,7 @@
     "files_deleted": 0,
     "plugins_installed": 0,
     "plugins_uninstalled": 0,
-    "most_plugins": 19,
+    "most_plugins": 20,
     "created": 1730596335,
     "created_version": "1.10.2"
   },

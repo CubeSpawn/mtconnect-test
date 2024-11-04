@@ -1,24 +1,12 @@
 FROM octoprint/octoprint:latest
 
-# Install additional dependencies
-RUN apt-get update && apt-get install -y \
-    python3-dev \
-    build-essential \
-    git \
-    curl \
-    && rm -rf /var/lib/apt/lists/*
+# Create plugin directories
+RUN mkdir -p /octoprint/plugins/lib/python3.10/site-packages
 
-# Install development tools
-RUN pip install \
-    pytest \
-    pytest-cov \
-    black \
-    flake8
+# Install dependencies into the plugin's site-packages
+RUN pip install --target=/octoprint/plugins/lib/python3.10/site-packages dicttoxml==1.7.4
 
-# Copy plugin requirements and install
-COPY requirements.txt /plugin/requirements.txt
-RUN pip install -r /plugin/requirements.txt
+# Set environment
+ENV PYTHONPATH=/octoprint/plugins
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=60s --start-period=120s --retries=5 \
-    CMD curl -f http://localhost:5000/ || exit 1
+WORKDIR /octoprint

@@ -16,7 +16,7 @@ file_check:
       value: 2024.3.27
   online: true
   possible: true
-  timestamp: 1730596340.2181792
+  timestamp: 1730682976.0093331
 firmware_check:
   available: false
   compatible: true
@@ -34,7 +34,17 @@ firmware_check:
       value: 2021.10.11
   online: true
   possible: true
-  timestamp: 1730596340.2171645
+  timestamp: 1730682976.0084836
+mtconnect:
+  available: false
+  compatible: true
+  disabled: false
+  error: api
+  hash: 5e8801a70d40e65e88f632f9a052f621
+  information: {}
+  online: true
+  possible: false
+  timestamp: 1730735145.1175864
 octoprint:
   available: false
   compatible: true
@@ -52,4 +62,4 @@ octoprint:
       value: 1.10.2
   online: true
   possible: true
-  timestamp: 1730596340.2185817
+  timestamp: 1730682976.0094247

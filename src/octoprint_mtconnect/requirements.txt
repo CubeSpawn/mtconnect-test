@@ -1,0 +1,5 @@
+pytest>=6.0.0
+pytest-cov>=2.0.0
+black>=22.0.0
+flake8>=3.9.0
+dicttoxml>=1.7.4
