@@ -1,6 +1,6 @@
 __version: 1.10.2
 file_check:
-  available: false
+  available: true
   compatible: true
   disabled: false
   error: null
@@ -11,12 +11,12 @@ file_check:
       value: 2024.3.27
     needs_online: true
     remote:
-      name: 2024.3.27
-      release_notes: https://github.com/OctoPrint/OctoPrint-FileCheck/releases/tag/2024.3.27
-      value: 2024.3.27
+      name: 2024.11.4
+      release_notes: https://github.com/OctoPrint/OctoPrint-FileCheck/releases/tag/2024.11.4
+      value: 2024.11.4
   online: true
   possible: true
-  timestamp: 1730682976.0093331
+  timestamp: 1730822314.8838782
 firmware_check:
   available: false
   compatible: true
@@ -34,7 +34,7 @@ firmware_check:
       value: 2021.10.11
   online: true
   possible: true
-  timestamp: 1730682976.0084836
+  timestamp: 1730822314.8835704
 mtconnect:
   available: false
   compatible: true
@@ -44,9 +44,9 @@ mtconnect:
   information: {}
   online: true
   possible: false
-  timestamp: 1730735145.1175864
+  timestamp: 1730822314.3840384
 octoprint:
-  available: false
+  available: true
   compatible: true
   disabled: false
   error: null
@@ -57,9 +57,9 @@ octoprint:
       value: 1.10.2
     needs_online: true
     remote:
-      name: 1.10.2
-      release_notes: https://github.com/OctoPrint/OctoPrint/releases/tag/1.10.2
-      value: 1.10.2
+      name: 1.10.3
+      release_notes: https://github.com/OctoPrint/OctoPrint/releases/tag/1.10.3
+      value: 1.10.3
   online: true
   possible: true
-  timestamp: 1730682976.0094247
+  timestamp: 1730822314.8844097

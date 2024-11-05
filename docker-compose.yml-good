@@ -54,8 +54,7 @@ services:
       - OCTOPRINT_BASEDIR=/octoprint
       - OCTOPRINT_DEBUG=1
       - OCTOPRINT_LOGGING_DEBUG=1
-    networks:
-      - mtconnect_net      # Added this line
+
       
   nodered:
     image: nodered/node-red:latest
@@ -70,6 +69,7 @@ services:
       - type: bind
         source: ./src/nodered/flows
         target: /data/flows
+
     environment:
       - TZ=UTC
       - FLOWS=flows.json
@@ -78,6 +78,7 @@ services:
     networks:
       - mtconnect_net
       
+  
   dev-tools:
     build:
       context: ./docker/dev-tools

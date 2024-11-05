@@ -1,0 +1,169 @@
+[
+    {
+        "id": "mtconnect-flow",
+        "type": "tab",
+        "label": "MTConnect Printer Monitor",
+        "disabled": false,
+        "info": ""
+    },
+    {
+        "id": "http-request",
+        "type": "http request",
+        "z": "mtconnect-flow",
+        "name": "MTConnect Data",
+        "method": "GET",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "http://octoprint:5000/plugin/mtconnect/current",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "authType": "",
+        "x": 290,
+        "y": 120,
+        "wires": [["debug1", "data-processor"]]
+    },
+    {
+        "id": "inject-timer",
+        "type": "inject",
+        "z": "mtconnect-flow",
+        "name": "5s Timer",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "5",
+        "crontab": "",
+        "once": true,
+        "onceDelay": "0",
+        "topic": "",
+        "x": 110,
+        "y": 120,
+        "wires": [["http-request"]]
+    },
+    {
+        "id": "debug1",
+        "type": "debug",
+        "z": "mtconnect-flow",
+        "name": "Raw MTConnect Data",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 500,
+        "y": 60,
+        "wires": []
+    },
+    {
+        "id": "test-inject",
+        "type": "inject",
+        "z": "mtconnect-flow",
+        "name": "Test Connection",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0,
+        "topic": "",
+        "payload": "",
+        "payloadType": "str",
+        "x": 120,
+        "y": 180,
+        "wires": [["dns-check"]]
+    },
+    {
+        "id": "dns-check",
+        "type": "function",
+        "z": "mtconnect-flow",
+        "name": "DNS Check",
+        "func": "const dns = global.get('dns');\n\ndns.lookup('octoprint', (err, address, family) => {\n    msg.payload = {\n        error: err ? err.toString() : null,\n        address: address,\n        family: family\n    };\n    node.send(msg);\n});\n\nreturn null;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "// Code added to 'On Start' tab\nconst dns = require('dns');\nglobal.set('dns', dns);",
+        "finalize": "",
+        "libs": [],
+        "x": 280,
+        "y": 180,
+        "wires": [["debug-dns"]]
+    },
+    {
+        "id": "debug-dns",
+        "type": "debug",
+        "z": "mtconnect-flow",
+        "name": "DNS Resolution Result",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 460,
+        "y": 180,
+        "wires": []
+    },
+    {
+        "id": "curl-test",
+        "type": "exec",
+        "z": "mtconnect-flow",
+        "command": "curl -v http://octoprint:5000/plugin/mtconnect/current",
+        "addpay": false,
+        "append": "",
+        "useSpawn": "false",
+        "timer": "",
+        "winHide": false,
+        "oldrc": false,
+        "name": "Test Curl",
+        "x": 280,
+        "y": 240,
+        "wires": [["debug-curl"],[],[]]
+    },
+    {
+        "id": "test-curl",
+        "type": "inject",
+        "z": "mtconnect-flow",
+        "name": "Test Curl",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0,
+        "topic": "",
+        "payload": "",
+        "payloadType": "str",
+        "x": 110,
+        "y": 240,
+        "wires": [["curl-test"]]
+    },
+    {
+        "id": "debug-curl",
+        "type": "debug",
+        "z": "mtconnect-flow",
+        "name": "Curl Result",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 440,
+        "y": 240,
+        "wires": []
+    }
+]

@@ -15,7 +15,7 @@ plugins:
       _plugins:
         read_until: 1728345600
       _releases:
-        read_until: 1718697600
+        read_until: 1730798460
   classicwebcam:
     _config_version: 1
     snapshot: http://localhost:8080/?action=snapshot

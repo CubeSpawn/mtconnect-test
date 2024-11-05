@@ -16,6 +16,8 @@
                 "welcome": "4.0.5"
             }
         },
-        "menu-menu-item-sidebar": true
+        "menu-menu-item-sidebar": true,
+        "menu-deploymenu-item-flow": true,
+        "menu-deploymenu-item-full": false
     }
 }
