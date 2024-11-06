@@ -74,7 +74,7 @@ services:
       - TZ=UTC
       - FLOWS=flows.json
     command: >
-      sh -c "npm install node-red-contrib-mtconnect && npm start -- --userDir /data"
+     sh -c "npm install node-red-contrib-mtconnect node-red-dashboard && npm start -- --userDir /data"
     networks:
       - mtconnect_net
       

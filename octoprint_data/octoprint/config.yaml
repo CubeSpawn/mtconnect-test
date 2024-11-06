@@ -26,6 +26,10 @@ plugins:
     unique_id: 8222a112-4f9e-4c0e-9ba5-5b0a98d4a1c6
   gcodeviewer:
     _config_version: 1
+  mtconnect:
+    manufacturer: CubeSpawn
+    serialNumber: '001'
+    station: 3D-PRINTER-01
   softwareupdate:
     _config_version: 9
   tracking:
@@ -35,7 +39,7 @@ plugins:
     _config_version: 1
     enabled: true
 printerProfiles:
-  default: _default
+  default: virtual_profile_1
 serial:
   autoconnect: true
 server:

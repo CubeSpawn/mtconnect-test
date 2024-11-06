@@ -1,24 +1,10 @@
 [
     {
-        "id": "mtconnect-flow",
+        "id": "printer_monitor",
         "type": "tab",
-        "label": "MTConnect Printer Tests",
+        "label": "Printer State Monitor",
         "disabled": false,
-        "info": ""
-    },
-    {
-        "id": "6bc0e23a6d451ab4",
-        "type": "tab",
-        "label": "MTConnect Printer Monitor",
-        "disabled": false,
-        "info": ""
-    },
-    {
-        "id": "9",
-        "type": "ui_tab",
-        "name": "3D Printer Monitor",
-        "icon": "dashboard",
-        "order": 2
+        "info": "MTConnect State Monitor for OctoPrint"
     },
     {
         "id": "2f1e1926c59db31e",
@@ -118,46 +104,50 @@
         }
     },
     {
-        "id": "96fe9f9b77db7dcc",
+        "id": "monitor_group",
+        "type": "ui_group",
+        "name": "Printer Monitor",
+        "tab": "printer_tab",
+        "order": 1,
+        "disp": true,
+        "width": "12"
+    },
+    {
+        "id": "printer_tab",
         "type": "ui_tab",
-        "name": "MTConnect Monitor",
+        "name": "3D Printer",
         "icon": "dashboard",
         "order": 1,
         "disabled": false,
         "hidden": false
     },
     {
-        "id": "g-printer-status",
-        "type": "ui_group",
-        "name": "Printer Status",
-        "tab": "dashboard",
-        "order": 1,
-        "disp": true,
-        "width": "12",
-        "collapse": false
+        "id": "poll_timer",
+        "type": "inject",
+        "z": "printer_monitor",
+        "name": "1s Timer",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "1",
+        "crontab": "",
+        "once": true,
+        "onceDelay": "0.1",
+        "topic": "",
+        "x": 110,
+        "y": 120,
+        "wires": [
+            [
+                "mtconnect_request"
+            ]
+        ]
     },
     {
-        "id": "dashboard",
-        "type": "ui_tab",
-        "name": "MTConnect Monitor",
-        "icon": "dashboard",
-        "order": 3,
-        "disabled": false,
-        "hidden": false
-    },
-    {
-        "id": "a6122b18ef7eeef3",
-        "type": "ui_group",
-        "name": "Group 1",
-        "tab": "9",
-        "order": 1,
-        "disp": true,
-        "width": 6
-    },
-    {
-        "id": "http-request",
+        "id": "mtconnect_request",
         "type": "http request",
-        "z": "mtconnect-flow",
+        "z": "printer_monitor",
         "name": "MTConnect Data",
         "method": "GET",
         "ret": "obj",
@@ -166,355 +156,56 @@
         "tls": "",
         "persist": false,
         "proxy": "",
-        "insecureHTTPParser": false,
         "authType": "",
-        "senderr": false,
-        "headers": [],
-        "x": 290,
-        "y": 120,
-        "wires": [
-            [
-                "debug1"
-            ]
-        ]
-    },
-    {
-        "id": "inject-timer",
-        "type": "inject",
-        "z": "mtconnect-flow",
-        "name": "5s Timer",
-        "props": [
-            {
-                "p": "payload"
-            }
-        ],
-        "repeat": "5",
-        "crontab": "",
-        "once": true,
-        "onceDelay": "0",
-        "topic": "",
-        "payload": "",
-        "payloadType": "str",
-        "x": 110,
-        "y": 120,
-        "wires": [
-            [
-                "http-request"
-            ]
-        ]
-    },
-    {
-        "id": "debug1",
-        "type": "debug",
-        "z": "mtconnect-flow",
-        "name": "Raw MTConnect Data",
-        "active": true,
-        "tosidebar": true,
-        "console": false,
-        "tostatus": false,
-        "complete": "true",
-        "targetType": "full",
-        "statusVal": "",
-        "statusType": "auto",
-        "x": 500,
-        "y": 60,
-        "wires": []
-    },
-    {
-        "id": "test-inject",
-        "type": "inject",
-        "z": "mtconnect-flow",
-        "name": "Test Connection",
-        "props": [
-            {
-                "p": "payload"
-            }
-        ],
-        "repeat": "",
-        "crontab": "",
-        "once": false,
-        "onceDelay": 0,
-        "topic": "",
-        "payload": "",
-        "payloadType": "str",
-        "x": 120,
-        "y": 180,
-        "wires": [
-            [
-                "dns-check"
-            ]
-        ]
-    },
-    {
-        "id": "dns-check",
-        "type": "function",
-        "z": "mtconnect-flow",
-        "name": "DNS Check",
-        "func": "const dns = global.get('dns');\n\ndns.lookup('octoprint', (err, address, family) => {\n    msg.payload = {\n        error: err ? err.toString() : null,\n        address: address,\n        family: family\n    };\n    node.send(msg);\n});\n\nreturn null;",
-        "outputs": 1,
-        "noerr": 0,
-        "initialize": "// Code added to 'On Start' tab\nconst dns = require('dns');\nglobal.set('dns', dns);",
-        "finalize": "",
-        "libs": [],
         "x": 280,
-        "y": 180,
-        "wires": [
-            [
-                "debug-dns"
-            ]
-        ]
-    },
-    {
-        "id": "debug-dns",
-        "type": "debug",
-        "z": "mtconnect-flow",
-        "name": "DNS Resolution Result",
-        "active": true,
-        "tosidebar": true,
-        "console": false,
-        "tostatus": false,
-        "complete": "payload",
-        "targetType": "msg",
-        "statusVal": "",
-        "statusType": "auto",
-        "x": 460,
-        "y": 180,
-        "wires": []
-    },
-    {
-        "id": "curl-test",
-        "type": "exec",
-        "z": "mtconnect-flow",
-        "command": "curl -v http://octoprint:5000/plugin/mtconnect/current",
-        "addpay": false,
-        "append": "",
-        "useSpawn": "false",
-        "timer": "",
-        "winHide": false,
-        "oldrc": false,
-        "name": "Test Curl",
-        "x": 280,
-        "y": 240,
-        "wires": [
-            [
-                "debug-curl"
-            ],
-            [],
-            []
-        ]
-    },
-    {
-        "id": "test-curl",
-        "type": "inject",
-        "z": "mtconnect-flow",
-        "name": "Test Curl",
-        "props": [
-            {
-                "p": "payload"
-            }
-        ],
-        "repeat": "",
-        "crontab": "",
-        "once": false,
-        "onceDelay": 0,
-        "topic": "",
-        "payload": "",
-        "payloadType": "str",
-        "x": 110,
-        "y": 240,
-        "wires": [
-            [
-                "curl-test"
-            ]
-        ]
-    },
-    {
-        "id": "debug-curl",
-        "type": "debug",
-        "z": "mtconnect-flow",
-        "name": "Curl Result",
-        "active": false,
-        "tosidebar": true,
-        "console": false,
-        "tostatus": false,
-        "complete": "payload",
-        "targetType": "msg",
-        "statusVal": "",
-        "statusType": "auto",
-        "x": 440,
-        "y": 240,
-        "wires": []
-    },
-    {
-        "id": "a05d736473ec145d",
-        "type": "http request",
-        "z": "6bc0e23a6d451ab4",
-        "name": "MTConnect Data",
-        "method": "GET",
-        "ret": "obj",
-        "paytoqs": "ignore",
-        "url": "http://octoprint:5000/plugin/mtconnect/current",
-        "tls": "",
-        "persist": false,
-        "proxy": "",
-        "insecureHTTPParser": false,
-        "authType": "",
-        "senderr": false,
-        "headers": [],
-        "x": 290,
         "y": 120,
         "wires": [
             [
-                "5e575b9fa4118d91",
-                "309aed74df0bd8de"
+                "data_processor"
             ]
         ]
     },
     {
-        "id": "5091b30f01fb69c9",
-        "type": "inject",
-        "z": "6bc0e23a6d451ab4",
-        "name": "5s Timer",
-        "props": [
-            {
-                "p": "payload"
-            }
-        ],
-        "repeat": "5",
-        "crontab": "",
-        "once": true,
-        "onceDelay": "0",
-        "topic": "",
-        "x": 110,
-        "y": 120,
-        "wires": [
-            [
-                "a05d736473ec145d"
-            ]
-        ]
-    },
-    {
-        "id": "309aed74df0bd8de",
+        "id": "data_processor",
         "type": "function",
-        "z": "6bc0e23a6d451ab4",
+        "z": "printer_monitor",
         "name": "Process MTConnect Data",
-        "func": "let streams = msg.payload.MTConnectStreams.Streams[0].DeviceStream;\n\n// Initialize variables\nlet nozzleTemp = null;\nlet bedTemp = null;\nlet status = null;\nlet dataTable = [];\n\n// Extract nozzle temperature\nlet head = streams.ComponentStreams.ComponentStream.find(c => c.component === 'Head');\nif (head && head.Samples && head.Samples.Sample) {\n    nozzleTemp = head.Samples.Sample.find(s => s.name === 'nozzle_temperature');\n}\n\n// Extract bed temperature\nlet bed = streams.ComponentStreams.ComponentStream.find(c => c.component === 'Table');\nif (bed && bed.Samples && bed.Samples.Sample) {\n    bedTemp = bed.Samples.Sample.find(s => s.name === 'bed_temperature');\n}\n\n// Extract system status\nif (streams.Events && streams.Events.Event) {\n    status = streams.Events.Event.find(e => e.name === 'system_status');\n}\n\n// Prepare data for table display\nif (streams.Events && streams.Events.Event) {\n    streams.Events.Event.forEach(event => {\n        dataTable.push({ parameter: event.name, value: event.value });\n    });\n}\n\n// Create output messages\nreturn [\n    { payload: nozzleTemp ? parseFloat(nozzleTemp.value) : 0 },  // Nozzle gauge\n    { payload: bedTemp ? parseFloat(bedTemp.value) : 0 },        // Bed gauge\n    { payload: status ? status.value : 'UNKNOWN' },              // Status text\n    { payload: dataTable }                                       // Data table\n];",
+        "func": "let streams = msg.payload.MTConnectStreams.Streams[0].DeviceStream;\n\n// Initialize variables\nlet nozzleTemp = 0;\nlet bedTemp = 0;\nlet status = 'UNKNOWN';\nlet progress = 0;\n\n// Extract temperatures\nlet head = streams.ComponentStreams.ComponentStream.find(c => c.component === 'Head');\nif (head && head.Samples && head.Samples.Sample) {\n    let nozzleTempData = head.Samples.Sample.find(s => s.name === 'nozzle_temperature');\n    if (nozzleTempData) nozzleTemp = parseFloat(nozzleTempData.value);\n}\n\n// Extract bed temperature\nlet bed = streams.ComponentStreams.ComponentStream.find(c => c.component === 'Table');\nif (bed && bed.Samples && bed.Samples.Sample) {\n    let bedTempData = bed.Samples.Sample.find(s => s.name === 'bed_temperature');\n    if (bedTempData) bedTemp = parseFloat(bedTempData.value);\n}\n\n// Extract status\nif (streams.Events && streams.Events.Event) {\n    let statusData = streams.Events.Event.find(e => e.name === 'system_status');\n    if (statusData) status = statusData.value;\n}\n\n// Extract progress information\nif (streams.Samples && streams.Samples.Sample) {\n    let percentData = streams.Samples.Sample.find(s => s.name === 'percent_complete');\n    if (percentData) progress = parseFloat(percentData.value);\n}\n\n// Return multiple messages\nreturn [\n    { payload: nozzleTemp },              // Nozzle temperature\n    { payload: bedTemp },                  // Bed temperature\n    { payload: status },                   // System status\n    { payload: progress }                  // Progress percentage\n];",
         "outputs": 4,
         "noerr": 0,
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 530,
-        "y": 260,
+        "x": 480,
+        "y": 120,
         "wires": [
             [
-                "6c082b7840ee63de",
-                "a80beaf44a412cfd"
+                "nozzle_temp_gauge"
             ],
             [
-                "1e521e2534e13c64",
-                "9db7f871b71bf01c"
+                "bed_temp_gauge"
             ],
             [
-                "70fe66ad9568be22",
-                "c28ccbc9507051fa"
+                "status_display"
             ],
             [
-                "3c43e3fd4df7b759",
-                "5af3ddbfbdd773f6"
+                "progress_gauge"
             ]
         ]
     },
     {
-        "id": "5e575b9fa4118d91",
-        "type": "debug",
-        "z": "6bc0e23a6d451ab4",
-        "name": "Raw MTConnect Data",
-        "active": true,
-        "tosidebar": true,
-        "console": false,
-        "tostatus": false,
-        "complete": "payload",
-        "targetType": "msg",
-        "statusVal": "",
-        "statusType": "auto",
-        "x": 520,
-        "y": 120,
-        "wires": []
-    },
-    {
-        "id": "6c082b7840ee63de",
-        "type": "debug",
-        "z": "6bc0e23a6d451ab4",
-        "name": "Nozzle Temp",
-        "active": true,
-        "tosidebar": true,
-        "console": false,
-        "tostatus": false,
-        "complete": "payload",
-        "targetType": "msg",
-        "x": 850,
-        "y": 220,
-        "wires": []
-    },
-    {
-        "id": "1e521e2534e13c64",
-        "type": "debug",
-        "z": "6bc0e23a6d451ab4",
-        "name": "Bed Temp",
-        "active": true,
-        "tosidebar": true,
-        "console": false,
-        "tostatus": false,
-        "complete": "payload",
-        "targetType": "msg",
-        "x": 840,
-        "y": 300,
-        "wires": []
-    },
-    {
-        "id": "70fe66ad9568be22",
-        "type": "debug",
-        "z": "6bc0e23a6d451ab4",
-        "name": "Status",
-        "active": true,
-        "tosidebar": true,
-        "console": false,
-        "tostatus": false,
-        "complete": "payload",
-        "targetType": "msg",
-        "x": 830,
-        "y": 380,
-        "wires": []
-    },
-    {
-        "id": "3c43e3fd4df7b759",
-        "type": "debug",
-        "z": "6bc0e23a6d451ab4",
-        "name": "Table Data",
-        "active": true,
-        "tosidebar": true,
-        "console": false,
-        "tostatus": false,
-        "complete": "payload",
-        "targetType": "msg",
-        "x": 850,
-        "y": 460,
-        "wires": []
-    },
-    {
-        "id": "a80beaf44a412cfd",
+        "id": "nozzle_temp_gauge",
         "type": "ui_gauge",
-        "z": "6bc0e23a6d451ab4",
+        "z": "printer_monitor",
         "name": "Nozzle Temperature",
-        "group": "g-printer-status",
+        "group": "monitor_group",
         "order": 1,
-        "width": 4,
-        "height": 3,
+        "width": "4",
+        "height": "4",
         "gtype": "gage",
-        "title": "Nozzle Temp",
+        "title": "Nozzle Temperature",
         "label": "?C",
-        "format": "{{value}}",
+        "format": "{{value | number:1}}",
         "min": 0,
         "max": "300",
         "colors": [
@@ -524,23 +215,23 @@
         ],
         "seg1": "180",
         "seg2": "220",
-        "x": 880,
-        "y": 180,
+        "x": 700,
+        "y": 80,
         "wires": []
     },
     {
-        "id": "9db7f871b71bf01c",
+        "id": "bed_temp_gauge",
         "type": "ui_gauge",
-        "z": "6bc0e23a6d451ab4",
+        "z": "printer_monitor",
         "name": "Bed Temperature",
-        "group": "g-printer-status",
+        "group": "monitor_group",
         "order": 2,
-        "width": 4,
-        "height": 3,
+        "width": "4",
+        "height": "4",
         "gtype": "gage",
-        "title": "Bed Temp",
+        "title": "Bed Temperature",
         "label": "?C",
-        "format": "{{value}}",
+        "format": "{{value | number:1}}",
         "min": 0,
         "max": "120",
         "colors": [
@@ -550,55 +241,51 @@
         ],
         "seg1": "50",
         "seg2": "80",
-        "x": 870,
-        "y": 260,
+        "x": 700,
+        "y": 120,
         "wires": []
     },
     {
-        "id": "c28ccbc9507051fa",
+        "id": "status_display",
         "type": "ui_text",
-        "z": "6bc0e23a6d451ab4",
-        "group": "g-printer-status",
+        "z": "printer_monitor",
+        "group": "monitor_group",
         "order": 3,
-        "width": 4,
-        "height": 1,
-        "name": "Printer Status",
-        "label": "Status:",
+        "width": "4",
+        "height": "2",
+        "name": "Machine State",
+        "label": "State:",
         "format": "{{msg.payload}}",
         "layout": "row-spread",
-        "x": 860,
-        "y": 340,
+        "className": "",
+        "x": 680,
+        "y": 160,
         "wires": []
     },
     {
-        "id": "5af3ddbfbdd773f6",
-        "type": "ui_table",
-        "z": "6bc0e23a6d451ab4",
-        "group": "g-printer-status",
-        "name": "Data Table",
+        "id": "progress_gauge",
+        "type": "ui_gauge",
+        "z": "printer_monitor",
+        "name": "Print Progress",
+        "group": "monitor_group",
         "order": 4,
-        "width": 8,
-        "height": 4,
-        "columns": [
-            {
-                "field": "parameter",
-                "title": "Parameter",
-                "width": "",
-                "align": "left",
-                "formatter": "plaintext"
-            },
-            {
-                "field": "value",
-                "title": "Value",
-                "width": "",
-                "align": "left",
-                "formatter": "plaintext"
-            }
+        "width": "4",
+        "height": "4",
+        "gtype": "gage",
+        "title": "Print Progress",
+        "label": "%",
+        "format": "{{value | number:1}}",
+        "min": 0,
+        "max": 100,
+        "colors": [
+            "#98fb98",
+            "#90ee90",
+            "#00b500"
         ],
-        "outputs": 0,
-        "cts": false,
-        "x": 850,
-        "y": 420,
+        "seg1": "33",
+        "seg2": "66",
+        "x": 680,
+        "y": 200,
         "wires": []
     }
 ]
